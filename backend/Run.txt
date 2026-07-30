@@ -30,3 +30,9 @@
 
 .myvenv\Scripts\activate
 uvicorn app.main:app --reload --port 8000
+
+https://trip-planner-oueh.onrender.com
+
+git add . 
+git commit -m "Solve Error in /backend folder"
+git push 

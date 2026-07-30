@@ -19,6 +19,8 @@ import {
   validateNormalizedTrip,
 } from "@/types/shared-trip";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 // Helper function to query backend/Puter AI and return a 100% complete NormalizedTrip
 async function generateItineraryWithPuterAI(params: {
   destination: string;
@@ -47,7 +49,7 @@ async function generateItineraryWithPuterAI(params: {
 
     // Try backend primary generation pipeline first
     try {
-      const generateRes = await fetch("http://localhost:8000/api/v1/trip/generate", {
+      const generateRes = await fetch(`${API_BASE}/api/v1/trip/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -81,7 +83,7 @@ async function generateItineraryWithPuterAI(params: {
     let rawContext: any = null;
 
     try {
-      const intelRes = await fetch("http://localhost:8000/api/v1/intelligence/stream-context", {
+      const intelRes = await fetch(`${API_BASE}/api/v1/intelligence/stream-context`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -154,7 +156,7 @@ async function generateItineraryWithPuterAI(params: {
 
     // Send parsed or partial data to backend for 100% section completion repair
     try {
-      const saveRes = await fetch("http://localhost:8000/api/v1/trip/save-generated", {
+      const saveRes = await fetch(`${API_BASE}/api/v1/trip/save-generated`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -375,7 +377,7 @@ function PlannerPageContent() {
       const fetchTrip = async () => {
         try {
           const token = localStorage.getItem("access_token");
-          const res = await fetch(`http://localhost:8000/api/trips/${tripId}`, {
+          const res = await fetch(`${API_BASE}/api/trips/${tripId}`, {
             headers: {
               "Content-Type": "application/json",
               ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -519,7 +521,7 @@ function PlannerPageContent() {
           const rawBudget = puterItinerary.budget?.total;
           const cleanBudget = typeof rawBudget === 'string' ? parseFloat((rawBudget as any).replace(/[^0-9.]/g, '')) || 0 : Number(rawBudget) || 0;
 
-          const saveRes = await fetch("http://localhost:8000/api/trips", {
+          const saveRes = await fetch(`${API_BASE}/api/trips`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -574,7 +576,7 @@ function PlannerPageContent() {
       console.log("[Planner] Puter.js returned null. Trying backend API...");
       setLiveSteps(prev => [...prev, "✓ Trying backend generation..."]);
 
-      const res = await fetch("http://localhost:8000/api/v1/trip/generate", {
+      const res = await fetch(`${API_BASE}/api/v1/trip/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -649,7 +651,7 @@ function PlannerPageContent() {
     setIsModifying(true);
 
     try {
-      const res = await fetch("http://localhost:8000/api/v1/trip/modify", {
+      const res = await fetch(`${API_BASE}/api/v1/trip/modify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

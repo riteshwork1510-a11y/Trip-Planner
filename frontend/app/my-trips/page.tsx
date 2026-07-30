@@ -10,6 +10,8 @@ import { useToast } from "@/components/ui/Toast";
 import { MyTrip, TripStatus, TripStatsSummary } from "@/types/my-trips";
 import { normalizeTripCard } from "@/lib/trip-card-normalizer";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 // --- SVG Icons ---
 const SearchIcon = () => (
   <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -84,7 +86,7 @@ export default function MyTripsPage() {
     const fetchTrips = async () => {
       try {
         const token = localStorage.getItem("access_token");
-        const res = await fetch("http://localhost:8000/api/trips", {
+        const res = await fetch(`${API_BASE}/api/trips`, {
           headers: {
             "Content-Type": "application/json",
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -153,7 +155,7 @@ export default function MyTripsPage() {
   const handleDeleteTrip = async (id: string) => {
     try {
       const token = localStorage.getItem("access_token");
-      await fetch(`http://localhost:8000/api/trips/${id}`, {
+      await fetch(`${API_BASE}/api/trips/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

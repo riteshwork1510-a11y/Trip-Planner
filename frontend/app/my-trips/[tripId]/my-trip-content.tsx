@@ -9,6 +9,8 @@ import { ScrollReveal } from "@/components/animations/animation-utils";
 import { normalizeLegacyTrip, type NormalizedTrip } from "@/types/shared-trip";
 import { renderSafe } from "@/lib/render-safe";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 export default function MyTripContent() {
   const params = useParams();
   const [trip, setTrip] = useState<any | null>(null);
@@ -21,7 +23,7 @@ export default function MyTripContent() {
     const fetchTrip = async () => {
       try {
         const token = localStorage.getItem("access_token");
-        const res = await fetch(`http://localhost:8000/api/trips/${tripId}`, {
+        const res = await fetch(`${API_BASE}/api/trips/${tripId}`, {
           headers: {
             "Content-Type": "application/json",
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
