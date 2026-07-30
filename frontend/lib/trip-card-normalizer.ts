@@ -171,7 +171,8 @@ export function normalizeTripCard(rawDoc: any, idx: number = 0): MyTrip {
     season: "Winter Comfort",
   };
 
-  const id = rawDoc._id || rawDoc.id || rawDoc.trip_id || fi.tripId || `trip-${idx + 1}`;
+  const rawId = rawDoc._id || rawDoc.id || rawDoc.trip_id || fi.tripId || `trip-${idx + 1}`;
+  const id = typeof rawId === "object" && rawId !== null ? rawId.toString() : String(rawId);
 
   return {
     id,
