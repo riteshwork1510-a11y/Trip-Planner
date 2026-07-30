@@ -62,9 +62,9 @@ export interface SharedDay {
   day?: number;
   title: string;
   activities: SharedActivity[];
-  hotel?: any;
-  restaurants?: any[];
-  transport?: any;
+  hotel?: SharedHotelOption;
+  restaurants?: SharedRestaurantOption[];
+  transport?: SharedTransportation;
   travelTime?: string;
   notes?: string;
 }
@@ -179,11 +179,11 @@ export interface NormalizedTrip {
   routeOptimization?: SharedRouteOptimization;
   dailyItinerary: SharedDay[];
   nearbyAttractions?: SharedNearbyAttractions[];
-  hotels?: SharedHotels | any;
-  restaurants?: SharedRestaurants | any;
-  transportation?: SharedTransportation | any;
-  costBreakdown?: SharedCostBreakdown | any;
-  packingChecklist?: SharedPackingChecklist | any;
+  hotels?: SharedHotels;
+  restaurants?: SharedRestaurants;
+  transportation?: SharedTransportation;
+  costBreakdown?: SharedCostBreakdown;
+  packingChecklist?: SharedPackingChecklist;
   weatherForecast?: SharedWeatherForecast[];
   emergencyInformation?: SharedEmergencyInformation;
   localTips?: SharedLocalTips;
@@ -192,7 +192,7 @@ export interface NormalizedTrip {
   travelStyle?: string;
   travelDates?: { start: string; end: string };
   duration?: { days: number; nights: number };
-  budget?: { perPerson: number; total: number; currency: string; label?: string } | any;
+  budget?: { perPerson: number; total: number; currency: string; label?: string };
   travellers?: { total: number; adults: number; children: number };
   summary?: string;
   weather?: { bestSeason?: string; temperature?: string; rainfall?: string; advice?: string };

@@ -162,7 +162,10 @@ async def get_trip(tripId: str):
     if not doc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Trip not found")
 
-    doc["_id"] = str(doc["_id"])
+    # Ensure legacy trips are fully populated with schemas
+    doc = TripNormalizer.validate_and_normalize_trip(doc)
+
+    doc["_id"] = str(doc.get("_id", tripId))
     return {"success": True, "data": doc}
 
 @router.get("/history", summary="Get User Trip History")

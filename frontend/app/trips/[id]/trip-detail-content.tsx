@@ -209,11 +209,11 @@ export default function TripDetailContent() {
           <StaggerContainer className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <Card variant="dark" padding="md" className="border-l-4 border-l-teal-500 bg-white/5 backdrop-blur-md">
               <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Best Season</p>
-              <p className="text-base font-bold text-white mt-1">{overview.bestTime || "Oct - Mar"}</p>
+              <p className="text-base font-bold text-white mt-1">{overview.bestTime}</p>
             </Card>
             <Card variant="dark" padding="md" className="border-l-4 border-l-amber-500 bg-white/5 backdrop-blur-md">
               <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Current Weather</p>
-              <p className="text-base font-bold text-white mt-1">{overview.currentWeather || "26°C Sunny"}</p>
+              <p className="text-base font-bold text-white mt-1">{overview.currentWeather}</p>
             </Card>
             <Card variant="dark" padding="md" className="border-l-4 border-l-teal-500 bg-white/5 backdrop-blur-md">
               <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Total Stops</p>
@@ -221,10 +221,64 @@ export default function TripDetailContent() {
             </Card>
             <Card variant="dark" padding="md" className="border-l-4 border-l-sky-500 bg-white/5 backdrop-blur-md">
               <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Currency & Lang</p>
-              <p className="text-base font-bold text-white mt-1">{overview.currency || "INR (₹)"}</p>
+              <p className="text-base font-bold text-white mt-1">{overview.currency}</p>
             </Card>
           </StaggerContainer>
         )}
+
+        {/* 2.5 Highlights & Local Tips (Restored) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {highlights && Object.values(highlights).some(arr => Array.isArray(arr) && arr.length > 0) && (
+            <Card variant="dark" padding="lg" className="lg:col-span-2">
+              <h3 className="text-xl font-bold text-white mb-4 border-b border-white/10 pb-2">Trip Highlights</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {Object.entries(highlights).filter(([_, arr]) => Array.isArray(arr) && arr.length > 0).map(([cat, items]: [string, any]) => (
+                  <div key={cat}>
+                    <h4 className="text-xs text-emerald-400 font-semibold uppercase tracking-wider mb-2">{cat.replace(/([A-Z])/g, ' $1')}</h4>
+                    <ul className="space-y-1">
+                      {items.slice(0, 4).map((item: string, idx: number) => (
+                        <li key={idx} className="text-sm text-gray-300 flex items-start gap-2">
+                          <span className="text-[#E85D04]">•</span> <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          <div className="space-y-6">
+            {emergency && Object.values(emergency).some(val => !!val) && (
+              <Card variant="dark" padding="lg" className="border-t-4 border-t-red-500 bg-red-900/10">
+                <h3 className="text-base font-bold text-white mb-3">Emergency Info</h3>
+                <div className="space-y-2 text-sm text-gray-300">
+                  {emergency.hospital && <div><strong className="text-red-400">Hospital:</strong> {emergency.hospital}</div>}
+                  {emergency.police && <div><strong className="text-red-400">Police:</strong> {emergency.police}</div>}
+                  {emergency.pharmacy && <div><strong className="text-red-400">Pharmacy:</strong> {emergency.pharmacy}</div>}
+                </div>
+              </Card>
+            )}
+
+            {tips && Object.values(tips).some(arr => Array.isArray(arr) && arr.length > 0) && (
+              <Card variant="dark" padding="lg" className="border-t-4 border-t-amber-500 bg-amber-900/10">
+                <h3 className="text-base font-bold text-white mb-3">Local Tips</h3>
+                {tips.dressCode && tips.dressCode.length > 0 && (
+                  <div className="mb-2">
+                    <strong className="text-amber-400 text-xs uppercase">Dress Code</strong>
+                    <p className="text-sm text-gray-300">{tips.dressCode[0]}</p>
+                  </div>
+                )}
+                {tips.safetyTips && tips.safetyTips.length > 0 && (
+                  <div>
+                    <strong className="text-amber-400 text-xs uppercase">Safety</strong>
+                    <p className="text-sm text-gray-300">{tips.safetyTips[0]}</p>
+                  </div>
+                )}
+              </Card>
+            )}
+          </div>
+        </div>
 
         {/* 3. Navigation Tabs */}
         <div className="flex items-center gap-2 border-b border-white/10 overflow-x-auto pb-2 scrollbar-none">
@@ -301,18 +355,18 @@ export default function TripDetailContent() {
                             </div>
 
                             <div className="flex flex-wrap items-center gap-2 shrink-0">
-                              <span className="text-xs font-semibold text-[#1B4332] bg-emerald-900/40 px-2.5 py-1 rounded-lg">⏱️ {act.expectedDuration || "1.5 Hours"}</span>
-                              <span className="text-xs font-semibold text-orange-700 bg-orange-900/40 px-2.5 py-1 rounded-lg">🎟️ {act.entryFee || "Free Entry"}</span>
+                              {act.expectedDuration && <span className="text-xs font-semibold text-[#1B4332] bg-emerald-900/40 px-2.5 py-1 rounded-lg">⏱️ {act.expectedDuration}</span>}
+                              {act.entryFee && <span className="text-xs font-semibold text-orange-700 bg-orange-900/40 px-2.5 py-1 rounded-lg">🎟️ {act.entryFee}</span>}
                             </div>
                           </div>
 
                           {act.description && <p className="text-xs text-gray-300 mb-3">{act.description}</p>}
 
                           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-white/10 text-[11px] text-gray-400">
-                            <div><span className="font-medium text-gray-200">Distance Prev:</span> {act.distance || "1.5 km"}</div>
-                            <div><span className="font-medium text-gray-200">Travel Time:</span> {act.travelTime || "15 mins"}</div>
-                            <div><span className="font-medium text-gray-200">Opening Hours:</span> {act.openingHours || "08:00 AM"}</div>
-                            <div><span className="font-medium text-gray-200">Best Photography:</span> {act.bestTime || "Morning"}</div>
+                            {act.distance && <div><span className="font-medium text-gray-200">Distance Prev:</span> {act.distance}</div>}
+                            {act.travelTime && <div><span className="font-medium text-gray-200">Travel Time:</span> {act.travelTime}</div>}
+                            {act.openingHours && <div><span className="font-medium text-gray-200">Opening Hours:</span> {act.openingHours}</div>}
+                            {act.bestTime && <div><span className="font-medium text-gray-200">Best Photography:</span> {act.bestTime}</div>}
                           </div>
                         </Card>
                       </div>
@@ -342,12 +396,12 @@ export default function TripDetailContent() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {hotels[hotelTier]?.map((h: any, idx: number) => (
+              {hotels[hotelTier] && hotels[hotelTier].length > 0 ? hotels[hotelTier].map((h: import('@/types/shared-trip').SharedHotelOption & { address?: string; amenities?: string[] }, idx: number) => (
                 <Card key={idx} variant="dark" padding="lg" hover>
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h4 className="text-lg font-bold text-white">{h.name}</h4>
-                      <p className="text-xs text-gray-400">{h.address}</p>
+                      {h.address && <p className="text-xs text-gray-400">{h.address}</p>}
                     </div>
                     <span className="text-sm font-extrabold text-emerald-400 bg-emerald-900/40 px-2.5 py-1 rounded-lg">{h.price}</span>
                   </div>
@@ -368,7 +422,11 @@ export default function TripDetailContent() {
                     </a>
                   )}
                 </Card>
-              ))}
+              )) : (
+                <div className="col-span-full py-8 text-center text-gray-400">
+                  <p>No verified hotels available.</p>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -391,7 +449,7 @@ export default function TripDetailContent() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {restaurants[diningCategory]?.map((r: any, idx: number) => (
+              {restaurants[diningCategory] && restaurants[diningCategory].length > 0 ? restaurants[diningCategory].map((r: import('@/types/shared-trip').SharedRestaurantOption, idx: number) => (
                 <Card key={idx} variant="dark" padding="lg" hover>
                   <div className="flex justify-between items-start mb-2">
                     <div>
@@ -405,7 +463,11 @@ export default function TripDetailContent() {
                     <span>Dist: <strong className="text-white">{r.distance}</strong></span>
                   </div>
                 </Card>
-              ))}
+              )) : (
+                <div className="col-span-full py-8 text-center text-gray-400">
+                  <p>No culinary guide available for {diningCategory}.</p>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -413,44 +475,56 @@ export default function TripDetailContent() {
         {/* 7. Tab 4: Logistics & Transit */}
         {activeTab === "logistics" && transport && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Object.entries(transport).map(([mode, info]: [string, any]) => (
-              <Card key={mode} variant="dark" padding="lg">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-[#1B4332] text-xl font-bold uppercase">
-                    {mode.charAt(0)}
+            {Object.entries(transport).filter(([_, info]) => !!info).length > 0 ? (
+              Object.entries(transport).filter(([_, info]) => !!info).map(([mode, info]: [string, any]) => (
+                <Card key={mode} variant="dark" padding="lg">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-[#1B4332] text-xl font-bold uppercase">
+                      {mode.charAt(0)}
+                    </div>
+                    <h4 className="text-base font-bold text-white capitalize">{mode} Transit</h4>
                   </div>
-                  <h4 className="text-base font-bold text-white capitalize">{mode} Transit</h4>
-                </div>
-                <p className="text-xs text-gray-300 leading-relaxed">{info}</p>
-              </Card>
-            ))}
+                  <p className="text-xs text-gray-300 leading-relaxed">{info}</p>
+                </Card>
+              ))
+            ) : (
+              <div className="col-span-full py-8 text-center text-gray-400">
+                <p>No transport information available.</p>
+              </div>
+            )}
           </div>
         )}
 
         {/* 8. Tab 5: Dynamic Packing Checklist */}
         {activeTab === "packing" && packing && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Object.entries(packing).map(([cat, items]: [string, any]) => (
-              <Card key={cat} variant="dark" padding="lg">
-                <h4 className="text-base font-bold text-white capitalize mb-4 border-b border-white/10 pb-2">{cat.replace(/([A-Z])/g, ' $1')}</h4>
-                <div className="space-y-2.5">
-                  {Array.isArray(items) && items.map((item: string, idx: number) => {
-                    const key = `${cat}-${idx}`;
-                    return (
-                      <label key={key} className="flex items-center gap-2.5 text-xs text-gray-200 cursor-pointer select-none">
-                        <input
-                          type="checkbox"
-                          checked={!!checkedItems[key]}
-                          onChange={() => toggleChecklist(key)}
-                          className="h-4 w-4 rounded border-gray-300 text-[#1B4332] focus:ring-[#1B4332]"
-                        />
-                        <span className={checkedItems[key] ? "line-through text-gray-400" : ""}>{item}</span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </Card>
-            ))}
+            {Object.entries(packing).filter(([_, items]) => Array.isArray(items) && items.length > 0).length > 0 ? (
+              Object.entries(packing).filter(([_, items]) => Array.isArray(items) && items.length > 0).map(([cat, items]: [string, any]) => (
+                <Card key={cat} variant="dark" padding="lg">
+                  <h4 className="text-base font-bold text-white capitalize mb-4 border-b border-white/10 pb-2">{cat.replace(/([A-Z])/g, ' $1')}</h4>
+                  <div className="space-y-2.5">
+                    {items.map((item: string, idx: number) => {
+                      const key = `${cat}-${idx}`;
+                      return (
+                        <label key={key} className="flex items-center gap-2.5 text-xs text-gray-200 cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            checked={!!checkedItems[key]}
+                            onChange={() => toggleChecklist(key)}
+                            className="h-4 w-4 rounded border-gray-300 text-[#1B4332] focus:ring-[#1B4332]"
+                          />
+                          <span className={checkedItems[key] ? "line-through text-gray-400" : ""}>{item}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </Card>
+              ))
+            ) : (
+              <div className="col-span-full py-8 text-center text-gray-400">
+                <p>No packing checklist available.</p>
+              </div>
+            )}
           </div>
         )}
 
@@ -459,12 +533,18 @@ export default function TripDetailContent() {
           <Card variant="dark" padding="lg" className="max-w-3xl mx-auto">
             <h3 className="text-xl font-bold text-white mb-6">Detailed Expense Breakdown</h3>
             <div className="space-y-4">
-              {Object.entries(cost).map(([item, val]: [string, any]) => (
-                <div key={item} className="flex justify-between items-center py-2 border-b border-white/10 text-sm">
-                  <span className="text-gray-300 font-medium capitalize">{item.replace(/([A-Z])/g, ' $1')}</span>
-                  <span className={`font-extrabold ${item === "grandTotal" ? "text-xl text-[#1B4332]" : "text-white"}`}>{val}</span>
+              {Object.entries(cost).filter(([_, val]) => !!val).length > 0 ? (
+                Object.entries(cost).filter(([_, val]) => !!val).map(([item, val]: [string, any]) => (
+                  <div key={item} className="flex justify-between items-center py-2 border-b border-white/10 text-sm">
+                    <span className="text-gray-300 font-medium capitalize">{item.replace(/([A-Z])/g, ' $1')}</span>
+                    <span className={`font-extrabold ${item === "grandTotal" ? "text-xl text-[#1B4332]" : "text-white"}`}>{val}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="py-8 text-center text-gray-400">
+                  <p>No cost breakdown available.</p>
                 </div>
-              ))}
+              )}
             </div>
           </Card>
         )}

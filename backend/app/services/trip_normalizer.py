@@ -232,6 +232,19 @@ class TripNormalizer:
         trip_id = raw_doc.get("trip_id") or raw_doc.get("id") or raw_doc.get("_id") or f"trip-{uuid.uuid4().hex[:12]}"
         gen_id = raw_doc.get("generation_id") or fi.get("generationId") or f"gen-{uuid.uuid4().hex[:12]}"
 
+        # 9. ENFORCE NESTED OBJECTS
+        fi.setdefault("costBreakdown", {})
+        fi.setdefault("emergencyInformation", {})
+        fi.setdefault("packingChecklist", {})
+        fi.setdefault("hotels", [])
+        fi.setdefault("restaurants", [])
+        fi.setdefault("transportation", [])
+        fi.setdefault("routeOptimization", {})
+        fi.setdefault("tripHighlights", {})
+        fi.setdefault("localTips", [])
+        fi.setdefault("dailyItinerary", [])
+        fi.setdefault("destinationOverview", {})
+
         # Construct Canonical Normalized Document
         normalized_doc = {
             "trip_id": trip_id,
