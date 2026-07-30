@@ -614,14 +614,14 @@ function PlannerPageContent() {
       mockItinerary.dailyItinerary = Array.from({ length: durationInfo.days }).map((_, idx) => ({
         day: idx + 1,
         title: `Day ${idx + 1}: ${destination} Exploration & Experience`,
-        hotel: { name: accommodationPref, area: destination, category: accommodationPref, pricePerNight: "", rating: "", reason: "" },
+        hotel: { name: accommodationPref, price: "", rating: "", distanceFromAttraction: "", bookingLink: "", address: destination },
         activities: [
-          { id: `mock-${idx}-1`, time: "Morning", title: "Morning Sightseeing", description: `Visit iconic historic landmarks and scenic viewpoints in ${destination}.`, location: destination, cost: 0, duration: "3 hours", category: "Sightseeing" },
-          { id: `mock-${idx}-2`, time: "Afternoon", title: "Afternoon Cultural Tour", description: `Explore local culture and cuisine.`, location: destination, cost: 0, duration: "3 hours", category: "Culture" },
-          { id: `mock-${idx}-3`, time: "Evening", title: "Evening Sunset & Dinner", description: `Relax with sunset views followed by fine dining.`, location: destination, cost: 0, duration: "2 hours", category: "Food" },
+          { placeName: "Morning Sightseeing", time: "Morning", description: `Visit iconic historic landmarks and scenic viewpoints in ${destination}.`, address: destination, entryFee: "0", expectedDuration: "3 hours", category: "Sightseeing" },
+          { placeName: "Afternoon Cultural Tour", time: "Afternoon", description: `Explore local culture and cuisine.`, address: destination, entryFee: "0", expectedDuration: "3 hours", category: "Culture" },
+          { placeName: "Evening Sunset & Dinner", time: "Evening", description: `Relax with sunset views followed by fine dining.`, address: destination, entryFee: "0", expectedDuration: "2 hours", category: "Food" },
         ],
         restaurants: [],
-        transport: { mode: "Car", from: "", to: "", duration: "", cost: "", reason: "" },
+        transport: { taxi: "", auto: "", metro: "", bus: "", rentalBike: "", rentalCar: "Rental or local taxi", walkingRoute: "" },
         travelTime: "1 hour",
         notes: "",
       }));
