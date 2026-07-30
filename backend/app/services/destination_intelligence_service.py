@@ -14,6 +14,7 @@ from app.services.destination_collectors import (
     RestaurantCollector,
     ShoppingCollector,
     ExperienceCollector,
+    InsufficientDataException,
 )
 from app.services.ranking_and_day_planner import RankingEngine, DayPlanner
 from app.services.distance_matrix_service import DistanceMatrixService
@@ -38,7 +39,11 @@ class DestinationIntelligenceService:
     @classmethod
     async def build_knowledge_graph(cls, request: IntelligenceRequest) -> DestinationKnowledgeGraph:
         # 1. Collect real destination attractions
-        raw_attractions = PlaceCollector.collect_attractions(request.destination)
+        try:
+            raw_attractions = PlaceCollector.collect_attractions(request.destination)
+        except InsufficientDataException as e:
+            logger.error(f"Insufficient Data: {e}")
+            raise e
 
         # 2. Intelligently rank attractions
         ranked_attractions = RankingEngine.rank_attractions(raw_attractions, request.interests)
@@ -126,11 +131,28 @@ class DestinationIntelligenceService:
                         graph_ok, graph_errors = AIResponseValidator.validate_itinerary_against_graph(data, graph)
                         
                         if graph_ok:
-                            parsed_data = data
-                            break
+                            # Strict duplicate check
+                            all_activities = []
+                            has_duplicates = False
+                            for day in data.get("dailyItinerary", []):
+                                for act in day.get("activities", []):
+                                    name = act.get("placeName", "").lower().strip()
+                                    if name in all_activities:
+                                        has_duplicates = True
+                                        break
+                                    all_activities.append(name)
+                                if has_duplicates:
+                                    break
+                            
+                            if has_duplicates:
+                                logger.warning(f"Self-validation failed on attempt {attempt}: Found duplicate attractions in generated JSON.")
+                                context_prompt += f"\n\nERROR IN PREVIOUS OUTPUT: You generated duplicate attractions. REGENERATE ITINERARY USING ONLY UNIQUE VERIFIED NEARBY LOCATIONS FROM THE PROVIDED DATA. NO HALLUCINATIONS. NO REPEATS."
+                            else:
+                                parsed_data = data
+                                break
                         else:
                             logger.warning(f"Self-validation failed on attempt {attempt}: {graph_errors}")
-                            context_prompt += f"\n\nERROR IN PREVIOUS OUTPUT: {', '.join(graph_errors)}\nREGENERATE ITINERARY USING ONLY VERIFIED NEARBY LOCATIONS FROM THE PROVIDED DATA. NO HALLUCINATIONS."
+                            context_prompt += f"\n\nERROR IN PREVIOUS OUTPUT: {', '.join(graph_errors)}\nREGENERATE ITINERARY USING ONLY VERIFIED NEARBY LOCATIONS FROM THE PROVIDED DATA. NO HALLUCINATIONS. NO REPEATS."
                     else:
                         logger.warning(f"Schema validation failed on attempt {attempt}: Missing {schema_missing}")
                 else:

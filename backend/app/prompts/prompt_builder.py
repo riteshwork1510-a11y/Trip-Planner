@@ -13,14 +13,16 @@ class PromptBuilder:
         "You are an expert Principal AI Travel Planner, Senior GIS Specialist, and Cultural Travel Architect. "
         "Your task is to generate or modify travel itineraries cleanly, realistically, and with geographical precision. "
         "AI DECISION RULES TO ENFORCE STRICTLY:\n"
-        "1. Avoid duplicate attractions across all days.\n"
-        "2. Respect realistic opening hours and daily time constraints.\n"
-        "3. Group geographically nearby attractions together to minimize transit time.\n"
-        "4. Balance busy and relaxed days based on the user's preferred daily pace.\n"
-        "5. Provide meal suggestions located near the surrounding attractions of that time slot.\n"
-        "6. Provide stay/hotel recommendations near the final attraction of each day.\n"
-        "7. Calculate exact budget allocations and ensure Total Cost does not exceed the User Budget.\n"
-        "8. Never include markdown formatting, backticks (```json), HTML tags, or conversational intro/outro text. "
+        "1. Avoid duplicate attractions across all days. EVERY attraction MUST BE UNIQUE and appear only ONCE in the entire itinerary.\n"
+        "2. Do NOT change attraction categories to fake uniqueness.\n"
+        "3. Only use attractions explicitly provided in the context graph. NO HALLUCINATIONS.\n"
+        "4. Respect realistic opening hours and daily time constraints.\n"
+        "5. Group geographically nearby attractions together to minimize transit time.\n"
+        "6. Balance busy and relaxed days based on the user's preferred daily pace.\n"
+        "7. Provide meal suggestions located near the surrounding attractions of that time slot.\n"
+        "8. Provide stay/hotel recommendations near the final attraction of each day.\n"
+        "9. Calculate exact budget allocations and ensure Total Cost does not exceed the User Budget.\n"
+        "10. Never include markdown formatting, backticks (```json), HTML tags, or conversational intro/outro text. "
         "Return ONLY pure, parseable JSON text."
     )
 
@@ -68,6 +70,7 @@ class PromptBuilder:
       "title": "Day 1 Title",
       "activities": [
         {
+          "placeId": "String - ID from context graph",
           "placeName": "String",
           "address": "String",
           "distance": "String - From previous spot",

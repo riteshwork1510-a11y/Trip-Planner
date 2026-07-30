@@ -141,7 +141,9 @@ async function generateItineraryWithPuterAI(params: {
       const puter = (await import("@heyputer/puter.js")).default;
       globalThis.WebSocket = OrigWS;
 
-      const messages = [{ role: "user" as const, content: prompt || `Generate trip to ${params.destination}`, images: [] as any[] }];
+      const strictRules = " STRICT RULES: DO NOT REPEAT ANY ATTRACTION. USE EXACT NAMES FROM CONTEXT. NO HALLUCINATIONS. EACH DAY MUST HAVE UNIQUE ACTIVITIES.";
+      const finalPrompt = (prompt || `Generate trip to ${params.destination}`) + strictRules;
+      const messages = [{ role: "user" as const, content: finalPrompt, images: [] as any[] }];
       const res: any = await puter.ai.chat(messages);
 
       if (typeof res === "string") rawText = res;
@@ -585,6 +587,9 @@ function PlannerPageContent() {
       if (!res.ok) {
         const errBody = await res.text().catch(() => "unknown");
         console.error("[Planner] Backend API returned:", res.status, errBody);
+        if (errBody.includes("INSUFFICIENT_DATA")) {
+             throw new Error("INSUFFICIENT_DATA: Not enough verified places.");
+        }
         throw new Error("Backend API generation failed");
       }
 
@@ -599,7 +604,16 @@ function PlannerPageContent() {
         router.push(`/my-trips?new_trip_id=${tripId}`);
         return;
       }
-    } catch (err) {
+    } catch (err: any) {
+      const errMsg = err?.message || String(err);
+      if (errMsg.includes("INSUFFICIENT_DATA") || errMsg.includes("Insufficient Data")) {
+        console.error("[Planner] Insufficient data for destination. Aborting generation.", err);
+        setLiveSteps(prev => [...prev, "❌ Error: Not enough attractions found."]);
+        addToast("Not enough verified attractions found for this destination. Please try a different location.", "error");
+        setIsGenerating(false);
+        return;
+      }
+      
       console.warn("[Planner] All primary paths failed. Generating client-side preview:", err);
       setLiveSteps(prev => [...prev, "✓ Building local preview itinerary..."]);
 

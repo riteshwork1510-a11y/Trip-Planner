@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Button from "@/components/ui/Button";
@@ -33,8 +33,8 @@ const destinationGradients: Record<string, string> = {
 };
 
 export default function TripDetailContent() {
-  const params = useParams();
-  const tripId = params.id as string;
+  const searchParams = useSearchParams();
+  const tripId = searchParams.get("id") as string;
   const { addToast } = useToast();
 
   const [trip, setTrip] = useState<NormalizedTrip | null>(null);

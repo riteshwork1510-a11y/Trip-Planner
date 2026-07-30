@@ -423,7 +423,7 @@ export default function MyTripsPage() {
                         {/* Primary Buttons */}
                         <div className="grid grid-cols-2 gap-2">
                           <Link
-                            href={`/my-trips/${trip.id}`}
+                            href={`/trips/details?id=${trip.id}`}
                             className="text-center py-3 rounded-2xl bg-[#1B4332] hover:bg-[#153728] text-white text-xs font-extrabold transition-all shadow-md hover:scale-[1.02]"
                           >
                             View Trip

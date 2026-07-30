@@ -122,3 +122,45 @@ class AIResponseValidator:
             missing.append("Route optimization metadata missing")
 
         return len(missing) == 0, missing
+
+    @classmethod
+    def validate_trip_schema(cls, data: Dict[str, Any]) -> Tuple[bool, List[str]]:
+        missing = []
+        if "destinationOverview" not in data and "destination" not in data: 
+            missing.append("destinationOverview")
+        if "dailyItinerary" not in data: 
+            missing.append("dailyItinerary")
+        return len(missing) == 0, missing
+
+    @classmethod
+    def validate_itinerary_against_graph(cls, data: Dict[str, Any], graph: Any) -> Tuple[bool, List[str]]:
+        errors = []
+        valid_attractions = [a.name.lower().strip() for a in graph.attractions]
+        valid_ids = [a.id for a in graph.attractions]
+        
+        seen_places = set()
+        
+        for day in data.get("dailyItinerary", []):
+            for act in day.get("activities", []):
+                name = act.get("placeName", "").lower().strip()
+                place_id = act.get("placeId", "")
+                
+                # Check for duplicates
+                if name in seen_places:
+                    errors.append(f"Duplicate attraction found: {act.get('placeName')}")
+                seen_places.add(name)
+                
+                # Check hallucination (name or id should be in graph)
+                is_valid = False
+                if place_id in valid_ids:
+                    is_valid = True
+                else:
+                    for valid_name in valid_attractions:
+                        if valid_name in name or name in valid_name:
+                            is_valid = True
+                            break
+                            
+                if not is_valid:
+                    errors.append(f"Hallucinated attraction: {act.get('placeName')}")
+        
+        return len(errors) == 0, errors

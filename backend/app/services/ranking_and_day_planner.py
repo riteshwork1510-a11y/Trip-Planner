@@ -47,6 +47,17 @@ class DayPlanner:
         if not attractions:
             return {}
 
+        # 0. Deduplicate attractions strictly by ID and Name
+        unique_attractions = []
+        seen_ids = set()
+        seen_names = set()
+        for attr in attractions:
+            if attr.id not in seen_ids and attr.name.lower() not in seen_names:
+                unique_attractions.append(attr)
+                seen_ids.add(attr.id)
+                seen_names.add(attr.name.lower())
+        attractions = unique_attractions
+
         days_plan: Dict[int, List[PlaceInfo]] = {d: [] for d in range(1, duration_days + 1)}
         
         # 1. Geocode the destination center

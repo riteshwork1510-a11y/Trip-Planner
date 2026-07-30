@@ -5,6 +5,9 @@ from app.schemas.intelligence_schemas import (
     PlaceInfo, HotelInfo, RestaurantInfo, ShoppingInfo, ExperienceInfo
 )
 
+class InsufficientDataException(Exception):
+    pass
+
 # Simulated Geocoding DB for test destinations
 GEO_DB = {
     "sarangpur hanumanji mandir": (22.2570, 71.7686),
@@ -42,10 +45,15 @@ class PlaceCollector:
         return (22.0 + random.random(), 70.0 + random.random())
 
     @classmethod
-    def generate_mock_places(cls, center_lat, center_lon, radius_min, radius_max, count, destination):
+    def generate_mock_places(cls, center_lat, center_lon, radius_min, radius_max, count, destination, used_names=None):
         """Simulates finding verified places in a specific distance band from coordinates."""
+        if used_names is None:
+            used_names = set()
         places = []
-        for i in range(count):
+        i = 0
+        attempts = 0
+        while i < count and attempts < count * 3:
+            attempts += 1
             angle = random.uniform(0, 2 * math.pi)
             distance = random.uniform(radius_min, radius_max)
             # 1 degree is approx 111 km
@@ -56,9 +64,16 @@ class PlaceCollector:
             p_lon = center_lon + lon_offset
             
             category = random.choice(CATEGORIES)
+            base_name = f"{category} near {destination}"
+            name = f"{base_name} ({distance:.1f}km away)"
+            
+            if name in used_names:
+                continue
+            used_names.add(name)
+
             places.append(PlaceInfo(
-                id=f"pl-{radius_min}-{radius_max}-{i}",
-                name=f"{category} near {destination} ({distance:.1f}km away)",
+                id=f"pl-{radius_min}-{radius_max}-{i}-{random.randint(1000, 9999)}",
+                name=name,
                 category=category,
                 latitude=p_lat,
                 longitude=p_lon,
@@ -72,6 +87,7 @@ class PlaceCollector:
                 average_rating=round(random.uniform(4.0, 5.0), 1),
                 short_description=f"A verified, real {category.lower()} located within the {radius_min}-{radius_max} km radius."
             ))
+            i += 1
         return places
 
     @classmethod
@@ -95,17 +111,21 @@ class PlaceCollector:
         # Expanding radius search logic
         radius_bands = [(0, 2), (2, 5), (5, 10), (10, 20), (20, 35), (35, 50), (50, 75), (75, 100)]
         collected_places = []
+        used_names = set()
         
         for r_min, r_max in radius_bands:
             # Simulate fetching real places in this band
-            count = random.randint(2, 6)
-            band_places = cls.generate_mock_places(lat, lon, r_min, r_max, count, destination)
+            count = random.randint(3, 7)
+            band_places = cls.generate_mock_places(lat, lon, r_min, r_max, count, destination, used_names)
             collected_places.extend(band_places)
             
             # Keep searching if we don't have enough, otherwise stop. 
             # In a real app we might query until we get ~25
             if len(collected_places) >= 25:
                 break
+        
+        if len(collected_places) < 4:
+            raise InsufficientDataException(f"INSUFFICIENT_DATA: Only {len(collected_places)} verified attractions found for {destination}.")
                 
         return collected_places
 
