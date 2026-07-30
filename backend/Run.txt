@@ -1,0 +1,32 @@
+========================================
+  WanderAI Backend - How to Run
+========================================
+
+1. Open a terminal in the "backend" folder.
+
+2. Create a virtual environment (first time only):
+   python -m venv venv
+
+3. Activate the virtual environment:
+   Windows:  .myvenv\Scripts\activate
+   Mac/Linux: source venv/bin/activate
+
+4. Install dependencies (first time only):
+   pip install -r requirements.txt
+
+5. Copy .env.example to .env and fill in your values:
+   - MONGODB_URL
+   - FRONTEND_URL
+   - Any other secrets
+
+6. Run the server:
+   uvicorn app.main:app --reload --port 8000
+
+7. API will be available at:
+   http://localhost:8000
+   Swagger docs: http://localhost:8000/docs
+   ReDoc: http://localhost:8000/redoc
+
+
+.myvenv\Scripts\activate
+uvicorn app.main:app --reload --port 8000

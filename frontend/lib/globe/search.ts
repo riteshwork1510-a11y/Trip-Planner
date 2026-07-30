@@ -1,0 +1,239 @@
+import { getCountryHierarchy, type RegionData, type CityData } from "./geography";
+
+const COUNTRIES: Record<string, [string, string]> = {
+  "004":["Afghanistan","South Asia"],"008":["Albania","Southern Europe"],
+  "012":["Algeria","North Africa"],"016":["American Samoa","Oceania"],"020":["Andorra","Southern Europe"],
+  "024":["Angola","Central Africa"],"028":["Antigua and Barbuda","Caribbean"],"031":["Azerbaijan","Western Asia"],
+  "032":["Argentina","South America"],"036":["Australia","Oceania"],"040":["Austria","Western Europe"],
+  "044":["Bahamas","Caribbean"],"048":["Bahrain","Western Asia"],"050":["Bangladesh","South Asia"],
+  "051":["Armenia","Western Asia"],"052":["Barbados","Caribbean"],"056":["Belgium","Western Europe"],
+  "060":["Bermuda","North America"],"064":["Bhutan","South Asia"],"068":["Bolivia","South America"],
+  "070":["Bosnia and Herzegovina","Southern Europe"],"072":["Botswana","Southern Africa"],
+  "076":["Brazil","South America"],"084":["Belize","Central America"],"090":["Solomon Islands","Oceania"],
+  "096":["Brunei","Southeast Asia"],"100":["Bulgaria","Eastern Europe"],"104":["Myanmar","Southeast Asia"],
+  "108":["Burundi","East Africa"],"112":["Belarus","Eastern Europe"],"116":["Cambodia","Southeast Asia"],
+  "120":["Cameroon","Central Africa"],"124":["Canada","North America"],"132":["Cape Verde","West Africa"],
+  "140":["Central African Republic","Central Africa"],"144":["Sri Lanka","South Asia"],
+  "148":["Chad","Central Africa"],"152":["Chile","South America"],"156":["China","East Asia"],
+  "158":["Taiwan","East Asia"],"170":["Colombia","South America"],"174":["Comoros","East Africa"],
+  "178":["Congo","Central Africa"],"180":["Dem. Rep. Congo","Central Africa"],
+  "188":["Costa Rica","Central America"],"191":["Croatia","Southern Europe"],"192":["Cuba","Caribbean"],
+  "196":["Cyprus","Western Asia"],"203":["Czechia","Eastern Europe"],"204":["Benin","West Africa"],
+  "208":["Denmark","Northern Europe"],"212":["Dominica","Caribbean"],"214":["Dominican Republic","Caribbean"],
+  "218":["Ecuador","South America"],"222":["El Salvador","Central America"],
+  "226":["Equatorial Guinea","Central Africa"],"231":["Ethiopia","East Africa"],
+  "232":["Eritrea","East Africa"],"233":["Estonia","Northern Europe"],
+  "234":["Faroe Islands","Northern Europe"],"242":["Fiji","Oceania"],"246":["Finland","Northern Europe"],
+  "250":["France","Western Europe"],"258":["French Polynesia","Oceania"],"262":["Djibouti","East Africa"],
+  "266":["Gabon","Central Africa"],"268":["Georgia","Western Asia"],"270":["Gambia","West Africa"],
+  "275":["Palestine","Western Asia"],"276":["Germany","Western Europe"],"288":["Ghana","West Africa"],
+  "296":["Kiribati","Oceania"],"300":["Greece","Southern Europe"],"304":["Greenland","North America"],
+  "308":["Grenada","Caribbean"],"320":["Guatemala","Central America"],"324":["Guinea","West Africa"],
+  "328":["Guyana","South America"],"332":["Haiti","Caribbean"],"340":["Honduras","Central America"],
+  "344":["Hong Kong","East Asia"],"348":["Hungary","Eastern Europe"],"352":["Iceland","Northern Europe"],
+  "356":["India","South Asia"],"360":["Indonesia","Southeast Asia"],"364":["Iran","Western Asia"],
+  "368":["Iraq","Western Asia"],"372":["Ireland","Northern Europe"],"376":["Israel","Western Asia"],
+  "380":["Italy","Southern Europe"],"384":["Ivory Coast","West Africa"],"388":["Jamaica","Caribbean"],
+  "392":["Japan","East Asia"],"398":["Kazakhstan","Central Asia"],"400":["Jordan","Western Asia"],
+  "404":["Kenya","East Africa"],"408":["North Korea","East Asia"],"410":["South Korea","East Asia"],
+  "414":["Kuwait","Western Asia"],"417":["Kyrgyzstan","Central Asia"],"418":["Laos","Southeast Asia"],
+  "422":["Lebanon","Western Asia"],"426":["Lesotho","Southern Africa"],"428":["Latvia","Northern Europe"],
+  "430":["Liberia","West Africa"],"434":["Libya","North Africa"],"438":["Liechtenstein","Western Europe"],
+  "440":["Lithuania","Northern Europe"],"442":["Luxembourg","Western Europe"],"450":["Madagascar","East Africa"],
+  "454":["Malawi","East Africa"],"458":["Malaysia","Southeast Asia"],"462":["Maldives","South Asia"],
+  "466":["Mali","West Africa"],"470":["Malta","Southern Europe"],"478":["Mauritania","West Africa"],
+  "480":["Mauritius","East Africa"],"484":["Mexico","North America"],"496":["Mongolia","East Asia"],
+  "498":["Moldova","Eastern Europe"],"499":["Montenegro","Southern Europe"],"504":["Morocco","North Africa"],
+  "508":["Mozambique","East Africa"],"512":["Oman","Western Asia"],"516":["Namibia","Southern Africa"],
+  "520":["Nauru","Oceania"],"524":["Nepal","South Asia"],"528":["Netherlands","Western Europe"],
+  "540":["New Caledonia","Oceania"],"548":["Vanuatu","Oceania"],"554":["New Zealand","Oceania"],
+  "558":["Nicaragua","Central America"],"562":["Niger","West Africa"],"566":["Nigeria","West Africa"],
+  "578":["Norway","Northern Europe"],"586":["Pakistan","South Asia"],"591":["Panama","Central America"],
+  "598":["Papua New Guinea","Oceania"],"600":["Paraguay","South America"],"604":["Peru","South America"],
+  "608":["Philippines","Southeast Asia"],"616":["Poland","Eastern Europe"],"620":["Portugal","Southern Europe"],
+  "624":["Guinea-Bissau","West Africa"],"626":["Timor-Leste","Southeast Asia"],
+  "630":["Puerto Rico","Caribbean"],"634":["Qatar","Western Asia"],"642":["Romania","Eastern Europe"],
+  "643":["Russia","Eastern Europe"],"646":["Rwanda","East Africa"],
+  "659":["Saint Kitts and Nevis","Caribbean"],"662":["Saint Lucia","Caribbean"],
+  "670":["Saint Vincent and the Grenadines","Caribbean"],"674":["San Marino","Southern Europe"],
+  "678":["Sao Tome and Principe","Central Africa"],"682":["Saudi Arabia","Western Asia"],
+  "686":["Senegal","West Africa"],"688":["Serbia","Southern Europe"],"690":["Seychelles","East Africa"],
+  "694":["Sierra Leone","West Africa"],"702":["Singapore","Southeast Asia"],
+  "703":["Slovakia","Eastern Europe"],"704":["Vietnam","Southeast Asia"],"705":["Slovenia","Southern Europe"],
+  "706":["Somalia","East Africa"],"710":["South Africa","Southern Africa"],"716":["Zimbabwe","East Africa"],
+  "724":["Spain","Southern Europe"],"728":["South Sudan","East Africa"],"729":["Sudan","North Africa"],
+  "732":["Western Sahara","North Africa"],"740":["Suriname","South America"],"748":["Eswatini","Southern Africa"],
+  "752":["Sweden","Northern Europe"],"756":["Switzerland","Western Europe"],"760":["Syria","Western Asia"],
+  "762":["Tajikistan","Central Asia"],"764":["Thailand","Southeast Asia"],"768":["Togo","West Africa"],
+  "776":["Tonga","Oceania"],"780":["Trinidad and Tobago","Caribbean"],
+  "784":["United Arab Emirates","Western Asia"],"788":["Tunisia","North Africa"],
+  "792":["Turkey","Western Asia"],"795":["Turkmenistan","Central Asia"],"798":["Tuvalu","Oceania"],
+  "800":["Uganda","East Africa"],"804":["Ukraine","Eastern Europe"],
+  "807":["North Macedonia","Southern Europe"],"818":["Egypt","North Africa"],
+  "826":["United Kingdom","Northern Europe"],"834":["Tanzania","East Africa"],
+  "840":["United States","North America"],"854":["Burkina Faso","West Africa"],
+  "858":["Uruguay","South America"],"860":["Uzbekistan","Central Asia"],"862":["Venezuela","South America"],
+  "882":["Samoa","Oceania"],"887":["Yemen","Western Asia"],"894":["Zambia","East Africa"],
+  "733":["Falkland Islands","South America"],"074":["Bouvet Island","Antarctica"],
+  "162":["Christmas Island","Oceania"],"166":["Cocos Islands","Oceania"],"184":["Cook Islands","Oceania"],
+  "239":["South Georgia","Antarctica"],"260":["French Southern Territories","Antarctica"],
+  "334":["Heard Island","Antarctica"],"469":["Mayotte","East Africa"],"544":["Niue","Oceania"],
+  "580":["Northern Mariana Islands","Oceania"],"612":["Pitcairn Islands","Oceania"],
+  "654":["St. Helena","West Africa"],"660":["Anguilla","Caribbean"],
+  "666":["St. Pierre and Miquelon","North America"],"698":["Sint Maarten","Caribbean"],
+  "772":["Tokelau","Oceania"],"796":["Turks and Caicos","Caribbean"],"831":["Guernsey","Northern Europe"],
+  "832":["Jersey","Northern Europe"],"833":["Isle of Man","Northern Europe"],
+};
+
+export interface SearchEntry {
+  id: string;
+  name: string;
+  type: "country" | "region" | "city" | "tourist_place";
+  parentId: string | null;
+  parentName: string;
+  regionName: string;
+  countryId: string;
+  lat: number | null;
+  lng: number | null;
+  _lower: string;
+  _regionLower: string;
+  _parentLower: string;
+}
+
+// A small dictionary of famous tourist places to populate the search index,
+// since our dynamic generation engine creates them on the fly per city.
+const MOCK_TOURIST_PLACES = [
+  { name: "Sabarmati Riverfront", city: "Ahmedabad", region: "Gujarat", countryId: "356", lat: 23.0225, lng: 72.5714 },
+  { name: "Adalaj Stepwell", city: "Ahmedabad", region: "Gujarat", countryId: "356", lat: 23.1667, lng: 72.5801 },
+  { name: "Eiffel Tower", city: "Paris", region: "Île-de-France", countryId: "250", lat: 48.8584, lng: 2.2945 },
+  { name: "Statue of Liberty", city: "New York", region: "New York", countryId: "840", lat: 40.6892, lng: -74.0445 },
+  { name: "Taj Mahal", city: "Agra", region: "Uttar Pradesh", countryId: "356", lat: 27.1751, lng: 78.0421 },
+  { name: "Machu Picchu", city: "Cusco", region: "Cusco Region", countryId: "604", lat: -13.1631, lng: -72.5450 },
+  { name: "Colosseum", city: "Rome", region: "Lazio", countryId: "380", lat: 41.8902, lng: 12.4922 }
+];
+
+let index: SearchEntry[] | null = null;
+
+function buildIndex(): SearchEntry[] {
+  if (index) return index;
+  const entries: SearchEntry[] = [];
+
+  for (const [id, [name, region]] of Object.entries(COUNTRIES)) {
+    const _lower = name.toLowerCase();
+    entries.push({
+      id, name, type: "country",
+      parentId: null, parentName: region,
+      regionName: region,
+      countryId: id,
+      lat: null, lng: null,
+      _lower, _regionLower: region.toLowerCase(), _parentLower: region.toLowerCase(),
+    });
+
+    const hierarchy = getCountryHierarchy(id);
+    for (const regionData of hierarchy.regions) {
+      const rLower = regionData.name.toLowerCase();
+      entries.push({
+        id: `region:${id}:${regionData.name}`,
+        name: regionData.name,
+        type: "region",
+        parentId: id,
+        parentName: name,
+        regionName: hierarchy.regionLabel,
+        countryId: id,
+        lat: null, lng: null,
+        _lower: rLower, _regionLower: hierarchy.regionLabel.toLowerCase(), _parentLower: _lower,
+      });
+
+      for (const city of regionData.cities) {
+        const cLower = city.name.toLowerCase();
+        entries.push({
+          id: `city:${id}:${regionData.name}:${city.name}`,
+          name: city.name,
+          type: "city",
+          parentId: `region:${id}:${regionData.name}`,
+          parentName: regionData.name,
+          regionName: name,
+          countryId: id,
+          lat: city.lat, lng: city.lng,
+          _lower: cLower, _regionLower: rLower, _parentLower: rLower,
+        });
+      }
+    }
+  }
+
+  for (const tp of MOCK_TOURIST_PLACES) {
+    const tpLower = tp.name.toLowerCase();
+    entries.push({
+      id: `tourist_place:${tp.countryId}:${tp.region}:${tp.city}:${tp.name}`,
+      name: tp.name,
+      type: "tourist_place",
+      parentId: `city:${tp.countryId}:${tp.region}:${tp.city}`,
+      parentName: tp.city,
+      regionName: tp.region,
+      countryId: tp.countryId,
+      lat: tp.lat, lng: tp.lng,
+      _lower: tpLower, _regionLower: tp.region.toLowerCase(), _parentLower: tp.city.toLowerCase(),
+    });
+  }
+
+  index = entries;
+  return entries;
+}
+
+function score(query: string, entry: SearchEntry): number {
+  const q = query;
+  if (entry._lower === q) return 200;
+  if (entry._lower.startsWith(q)) return 150 + Math.min(10, 10 - q.length);
+  if (entry._lower === q) return 140;
+
+  const words = entry.name.split(/\s+/);
+  for (const w of words) {
+    if (w.toLowerCase().startsWith(q)) return 130;
+  }
+  if (entry._lower.includes(q)) return 100;
+  for (const w of words) {
+    if (w.toLowerCase().includes(q)) return 90;
+  }
+  if (entry._parentLower.includes(q)) return 60;
+  if (entry._regionLower.includes(q)) return 50;
+
+  let qi = 0;
+  for (let ci = 0; ci < entry._lower.length && qi < q.length; ci++) {
+    if (entry._lower[ci] === q[qi]) qi++;
+  }
+  if (qi === q.length) return 30;
+
+  return -1;
+}
+
+export function searchGlobe(query: string, limit = 12): SearchEntry[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+
+  const entries = buildIndex();
+  const scored: [number, SearchEntry][] = [];
+
+  for (const entry of entries) {
+    const s = score(q, entry);
+    if (s > 0) scored.push([s, entry]);
+  }
+
+  scored.sort((a, b) => b[0] - a[0]);
+  return scored.slice(0, limit).map(([, e]) => e);
+}
+
+export function warmSearchIndex(): void {
+  buildIndex();
+}
+
+export interface CountryLookup {
+  id: string;
+  name: string;
+  region: string;
+}
+
+export function lookupCountry(countryId: string): CountryLookup | null {
+  const entry = COUNTRIES[countryId];
+  if (!entry) return null;
+  return { id: countryId, name: entry[0], region: entry[1] };
+}
